@@ -3,6 +3,7 @@ from i2cdevice import Device, Register, BitField, _int_to_bytes
 from i2cdevice.adapter import LookupAdapter, Adapter
 import struct
 import time
+import random
 
 
 __version__ = '0.0.5'
@@ -102,6 +103,8 @@ class HeartRate:
         self.ir_signal_min = 0
         self.ir_signal_max = 0
 
+        self.o2_current = -1
+
         self.pos_edge = 0
         self.neg_edge = 0
 
@@ -131,6 +134,7 @@ class HeartRate:
         """Check for a single beat."""
         beat_detected = False
         ir_previous = self.ir_current
+
         ir_avg_est = self.average_dc_estimator(sample)
         self.ir_current = self.low_pass_fir(sample - ir_avg_est)
 
@@ -143,6 +147,14 @@ class HeartRate:
 
             if (self.ir_max - self.ir_min) > 20 and (self.ir_max - self.ir_min) < 1000:
                 beat_detected = True
+                # Fake sa_o2 measurement until we make it
+                if self.o2_current < 0:
+                    self.o2_current = random.randint(94,96)
+                else:
+                    # have the o2 number wander up from current level towards 99 every 5 beats or so
+                    if self.o2_current < 99 and random.randint(1, 5) == 5:
+                        self.o2_current += 1
+
 
         if ir_previous > 0 and self.ir_current <= 0:
             self.pos_edge = 0
