@@ -201,7 +201,7 @@ class HeartRate:
                     bpm_avg = sum(bpm_vals) / average_over
 
             if t - last_update >= delay:
-                if handler(beat_detected, bpm, bpm_avg, self.max30105.o2_current):
+                if handler(beat_detected, bpm, bpm_avg, self.o2_current):
                     return
                 beat_detected = False
                 last_update = t
